@@ -35,98 +35,94 @@
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="QGroupBox" name="groupBox_guesttohost_download">
-              <property name="title">
-               <string>Download</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_7">
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_download_allow">
-                 <property name="text">
-                  <string>Allow</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_download_askuser">
-                 <property name="text">
-                  <string>Ask User</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_download_deny">
-                 <property name="text">
-                  <string>Deny</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_guesttohost_print">
-              <property name="title">
-               <string>Print</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_6">
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_print_allow">
-                 <property name="text">
-                  <string>Allow</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_print_askuser">
-                 <property name="text">
-                  <string>Ask User</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_print_deny">
-                 <property name="text">
-                  <string>Deny</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_guesttohost_clipboard">
-              <property name="title">
-               <string>Clipboard</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_clipboard_allow">
-                 <property name="text">
-                  <string>Allow</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_clipboard_askuser">
-                 <property name="text">
-                  <string>Ask User</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radio_guesttohost_clipboard_deny">
-                 <property name="text">
-                  <string>Deny</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QGroupBox" name="groupBox_guesttohost_download">
+            <property name="title">
+             <string>Download</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_download_allow">
+               <property name="text">
+                <string>Allow</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_download_askuser">
+               <property name="text">
+                <string>Ask User</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_download_deny">
+               <property name="text">
+                <string>Deny</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_guesttohost_print">
+            <property name="title">
+             <string>Print</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_print_allow">
+               <property name="text">
+                <string>Allow</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_print_askuser">
+               <property name="text">
+                <string>Ask User</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_print_deny">
+               <property name="text">
+                <string>Deny</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_guesttohost_clipboard">
+            <property name="title">
+             <string>Clipboard</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_clipboard_allow">
+               <property name="text">
+                <string>Allow</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_clipboard_askuser">
+               <property name="text">
+                <string>Ask User</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radio_guesttohost_clipboard_deny">
+               <property name="text">
+                <string>Deny</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item>
            <spacer name="verticalSpacer_2">
