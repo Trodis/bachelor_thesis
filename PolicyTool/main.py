@@ -6,8 +6,7 @@ def main(argv):
     app = QtGui.QApplication(argv)
     mainWindow = QtGui.QMainWindow()
 
-    ui = Ui_MainWindow()
-    ui.setupUi(mainWindow)
+    ui = Ui_MainWindow(mainWindow)
     mainWindow.show()
     sys.exit(app.exec_())
 
