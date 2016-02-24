@@ -6,236 +6,373 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>726</width>
-    <height>605</height>
+    <width>531</width>
+    <height>629</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>531</width>
+    <height>629</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>531</width>
+    <height>520</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Sirrix AG - Browser in the Box | Security Policy Manager</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="BitBox">
+    <normaloff>BitBox.ico</normaloff>BitBox.ico</iconset>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
+     <widget class="QLabel" name="label_sirrixLogo">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>sirrix_logo.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tab_informationflow">
        <attribute name="title">
         <string>Information flow</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>BitBox to Desktop</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_guesttohost_download">
-            <property name="title">
-             <string>Download</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_7">
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_download_allow">
-               <property name="text">
-                <string>Allow</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_download_askuser">
-               <property name="text">
-                <string>Ask User</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_download_deny">
-               <property name="text">
-                <string>Deny</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_guesttohost_print">
-            <property name="title">
-             <string>Print</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_6">
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_print_allow">
-               <property name="text">
-                <string>Allow</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_print_askuser">
-               <property name="text">
-                <string>Ask User</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_print_deny">
-               <property name="text">
-                <string>Deny</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_guesttohost_clipboard">
-            <property name="title">
-             <string>Clipboard</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_5">
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_clipboard_allow">
-               <property name="text">
-                <string>Allow</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_clipboard_askuser">
-               <property name="text">
-                <string>Ask User</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radio_guesttohost_clipboard_deny">
-               <property name="text">
-                <string>Deny</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+         <widget class="QLabel" name="label_description_informationflow">
+          <property name="text">
+           <string>Sicherheitseinstellungen für den Datentransfer zwischen Browser und Windows</string>
+          </property>
+         </widget>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item alignment="Qt::AlignHCenter">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Desktop to BitBox</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_hosttoguest_upload">
-            <property name="title">
-             <string>Upload</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_8">
+         <widget class="QGroupBox" name="groupBox_clipboard">
+          <property name="title">
+           <string>Zwischenablage</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="label_hosttoguest_description">
+             <property name="text">
+              <string>Kopieren aus Windows und Einfügen in Browser</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_clipboard_hosttoguest">
              <item>
-              <widget class="QRadioButton" name="radio_hosttoguest_upload_allow">
-               <property name="text">
-                <string>Allow</string>
-               </property>
-              </widget>
+              <property name="text">
+               <string>verbieten</string>
+              </property>
              </item>
              <item>
-              <widget class="QRadioButton" name="radio_hosttoguest_upload_askuser">
-               <property name="text">
-                <string>Ask User</string>
-               </property>
-              </widget>
+              <property name="text">
+               <string>Bestätigung durch Benutzer</string>
+              </property>
              </item>
              <item>
-              <widget class="QRadioButton" name="radio_hosttoguest_upload_deny">
-               <property name="text">
-                <string>Deny</string>
-               </property>
-              </widget>
+              <property name="text">
+               <string>erlauben</string>
+              </property>
              </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_hosttoguest_clipboard">
-            <property name="title">
-             <string>Clipboard</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_9">
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_guesttohost_description">
+             <property name="text">
+              <string>Kopieren aus Browser und Einfügen in Windows</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_clipboard_guesttohost">
              <item>
-              <widget class="QRadioButton" name="radio_hosttoguest_clipboard_allow">
-               <property name="text">
-                <string>Allow</string>
-               </property>
-              </widget>
+              <property name="text">
+               <string>verbieten</string>
+              </property>
              </item>
              <item>
-              <widget class="QRadioButton" name="radio_hosttoguest_clipboard_askuser">
-               <property name="text">
-                <string>Ask User</string>
-               </property>
-              </widget>
+              <property name="text">
+               <string>Bestätigung durch Benutzer</string>
+              </property>
              </item>
              <item>
-              <widget class="QRadioButton" name="radio_hosttoguest_clipboard_deny">
-               <property name="text">
-                <string>Deny</string>
-               </property>
-              </widget>
+              <property name="text">
+               <string>erlauben</string>
+              </property>
              </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_fileflow">
+          <property name="title">
+           <string>Dateien</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QLabel" name="label_upload_description">
+             <property name="text">
+              <string>Hochladen ins Internet</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_upload">
+             <item>
+              <property name="text">
+               <string>verbieten</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Bestätigung durch Benutzer</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>erlauben</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_download_description">
+             <property name="text">
+              <string>Herunterladen aus dem Internet</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_download">
+             <item>
+              <property name="text">
+               <string>verbieten</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Bestätigung durch Benutzer</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Virencheck</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>erlauben</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_persistency">
+          <property name="title">
+           <string>Welche Dateien sollen dauerhaft gespeichert werden?</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QRadioButton" name="radioButton_persistency_all">
+             <property name="text">
+              <string>Alle (Konfiguration, Lesezeichen)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_persistency_bookmarksonly">
+             <property name="text">
+              <string>Nur Lesezeichen</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_persistency_deny">
+             <property name="text">
+              <string>Keine</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="tab_network">
        <attribute name="title">
         <string>Network</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="QGroupBox" name="groupBox_proxy">
+          <property name="title">
+           <string>Proxy Einstellungen</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_10">
+           <item>
+            <widget class="QRadioButton" name="radioButton_proxy_none">
+             <property name="text">
+              <string>Kein Proxy</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_staticproxy">
+             <item>
+              <widget class="QRadioButton" name="radioButton_proxy_static">
+               <property name="text">
+                <string>Statische Adresse/Port:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_proxy_static_ip"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_slash_ip_prefix">
+               <property name="text">
+                <string>/</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_proxy_static_prefix">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_proxy_automatic">
+             <item>
+              <widget class="QRadioButton" name="radioButton_proxy_automatic">
+               <property name="text">
+                <string>Automatische Proxykonfigurations URL:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_proxy_automatic_url"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_lockproxy">
+          <property name="text">
+           <string>Proxy Einstellungen sperren</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_DNS">
+          <property name="title">
+           <string>DNS Einstellungen</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QRadioButton" name="radioButton_dns_windows">
+             <property name="text">
+              <string>Einstellungen von Windows übernehmen</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_static_dns">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QRadioButton" name="radioButton_dns_static">
+               <property name="text">
+                <string>Statische Adressen (komma-getrennt)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_dns_static_adress">
+               <property name="text">
+                <string>8.8.8.8,8.8.4.4</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_networktab_bottom">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_save_reset_buttons">
       <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer_save_reset_buttons">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -251,9 +388,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_anwenden">
+       <widget class="QPushButton" name="pushButton_save">
         <property name="text">
-         <string>Anwenden</string>
+         <string>Speichern</string>
         </property>
        </widget>
       </item>
@@ -273,12 +410,11 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>726</width>
+     <width>531</width>
      <height>19</height>
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
