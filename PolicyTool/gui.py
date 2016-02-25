@@ -37,6 +37,7 @@ class Ui_MainWindow(object):
         self.label_hosttoguest_description = QtGui.QLabel(self.groupBox_clipboard)
         self.label_hosttoguest_description.setObjectName("label_hosttoguest_description")
         self.verticalLayout_2.addWidget(self.label_hosttoguest_description)
+
         self.comboBox_clipboard_hosttoguest = QtGui.QComboBox(self.groupBox_clipboard)
         self.comboBox_clipboard_hosttoguest.setObjectName("comboBox_clipboard_hosttoguest")
         self.comboBox_clipboard_hosttoguest.addItem("")
@@ -46,37 +47,44 @@ class Ui_MainWindow(object):
         self.label_guesttohost_description = QtGui.QLabel(self.groupBox_clipboard)
         self.label_guesttohost_description.setObjectName("label_guesttohost_description")
         self.verticalLayout_2.addWidget(self.label_guesttohost_description)
+
         self.comboBox_clipboard_guesttohost = QtGui.QComboBox(self.groupBox_clipboard)
         self.comboBox_clipboard_guesttohost.setObjectName("comboBox_clipboard_guesttohost")
         self.comboBox_clipboard_guesttohost.addItem("")
         self.comboBox_clipboard_guesttohost.addItem("")
         self.comboBox_clipboard_guesttohost.addItem("")
+
         self.verticalLayout_2.addWidget(self.comboBox_clipboard_guesttohost)
         self.verticalLayout.addWidget(self.groupBox_clipboard)
         self.groupBox_fileflow = QtGui.QGroupBox(self.tab_informationflow)
         self.groupBox_fileflow.setObjectName("groupBox_fileflow")
-        self.verticalLayout_3 = QtGui.QVBoxLayout(self.groupBox_fileflow)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        
         self.label_upload_description = QtGui.QLabel(self.groupBox_fileflow)
         self.label_upload_description.setObjectName("label_upload_description")
-        self.verticalLayout_3.addWidget(self.label_upload_description)
+
         self.comboBox_upload = QtGui.QComboBox(self.groupBox_fileflow)
         self.comboBox_upload.setObjectName("comboBox_upload")
         self.comboBox_upload.addItem("")
         self.comboBox_upload.addItem("")
         self.comboBox_upload.addItem("")
-        self.verticalLayout_3.addWidget(self.comboBox_upload)
-        self.label_download_description = QtGui.QLabel(self.groupBox_fileflow)
-        self.label_download_description.setObjectName("label_download_description")
-        self.verticalLayout_3.addWidget(self.label_download_description)
+
         self.comboBox_download = QtGui.QComboBox(self.groupBox_fileflow)
         self.comboBox_download.setObjectName("comboBox_download")
         self.comboBox_download.addItem("")
         self.comboBox_download.addItem("")
         self.comboBox_download.addItem("")
         self.comboBox_download.addItem("")
-        self.verticalLayout_3.addWidget(self.comboBox_download)
         self.verticalLayout.addWidget(self.groupBox_fileflow)
+
+        self.verticalLayout_3 = QtGui.QVBoxLayout(self.groupBox_fileflow)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.verticalLayout_3.addWidget(self.label_upload_description)
+        self.verticalLayout_3.addWidget(self.comboBox_upload)
+        self.verticalLayout_3.addWidget(self.comboBox_download)
+
+        self.label_download_description = QtGui.QLabel(self.groupBox_fileflow)
+        self.label_download_description.setObjectName("label_download_description")
+        self.verticalLayout_3.addWidget(self.label_download_description)
         
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.groupBox_persistency)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
@@ -91,8 +99,20 @@ class Ui_MainWindow(object):
                 
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.tab_network)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.verticalLayout_6.addWidget(self.checkBox_lockproxy)
         self.verticalLayout_6.addWidget(self.groupBox_proxy)
+        self.verticalLayout_6.addWidget(self.checkBox_lockproxy)
+        self.verticalLayout_6.addWidget(self.groupBox_DNS)
+
+        self.verticalLayout_static_dns = QtGui.QVBoxLayout()
+        self.verticalLayout_static_dns.setContentsMargins(-1, 0, -1, -1)
+        self.verticalLayout_static_dns.setObjectName("verticalLayout_static_dns")
+        self.verticalLayout_static_dns.addWidget(self.radioButton_dns_static)
+        self.verticalLayout_static_dns.addWidget(self.lineEdit_dns_static_adress)
+
+        self.verticalLayout_8 = QtGui.QVBoxLayout(self.groupBox_DNS)
+        self.verticalLayout_8.setObjectName("verticalLayout_8")
+        self.verticalLayout_8.addWidget(self.radioButton_dns_windows)
+        self.verticalLayout_8.addLayout(self.verticalLayout_static_dns)
         
         self.verticalLayout_10 = QtGui.QVBoxLayout(self.groupBox_proxy)
         self.verticalLayout_10.setObjectName("verticalLayout_10")
@@ -109,26 +129,14 @@ class Ui_MainWindow(object):
         self.verticalLayout_proxy_automatic.addWidget(self.radioButton_proxy_automatic)
         self.verticalLayout_proxy_automatic.addWidget(self.lineEdit_proxy_automatic_url)
         self.verticalLayout_10.addLayout(self.verticalLayout_proxy_automatic)
-
-        self.verticalLayout_static_dns = QtGui.QVBoxLayout()
-        self.verticalLayout_static_dns.setContentsMargins(-1, 0, -1, -1)
-        self.verticalLayout_static_dns.setObjectName("verticalLayout_static_dns")
-        self.verticalLayout_static_dns.addWidget(self.radioButton_dns_static)
-        self.verticalLayout_static_dns.addWidget(self.lineEdit_dns_static_adress)
-
-        self.verticalLayout_8 = QtGui.QVBoxLayout(self.groupBox_DNS)
-        self.verticalLayout_8.setObjectName("verticalLayout_8")
-        self.verticalLayout_8.addWidget(self.radioButton_dns_windows)
-        self.verticalLayout_8.addLayout(self.verticalLayout_static_dns)
-        self.verticalLayout_6.addWidget(self.groupBox_DNS)
+        
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum,
                 QtGui.QSizePolicy.Expanding)
         self.verticalLayout_6.addItem(spacerItem1)
         
-        
-
         spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding,
                 QtGui.QSizePolicy.Minimum)
+
         self.horizontalLayout_save_reset_buttons.addItem(spacerItem2)
         self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_save)
         self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_reset)
