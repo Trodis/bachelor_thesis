@@ -80,11 +80,12 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.verticalLayout_3.addWidget(self.label_upload_description)
         self.verticalLayout_3.addWidget(self.comboBox_upload)
-        self.verticalLayout_3.addWidget(self.comboBox_download)
 
         self.label_download_description = QtGui.QLabel(self.groupBox_fileflow)
         self.label_download_description.setObjectName("label_download_description")
         self.verticalLayout_3.addWidget(self.label_download_description)
+        self.verticalLayout_3.addWidget(self.comboBox_download)
+        self.verticalLayout_3.addWidget(self.checkBox_print)
         
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.groupBox_persistency)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
@@ -187,6 +188,10 @@ class Ui_MainWindow(object):
         self.radioButton_persistency_bookmarksonly = QtGui.QRadioButton(self.groupBox_persistency)
         self.radioButton_persistency_bookmarksonly.setObjectName("radioButton_persistency_bookmarksonly")
         
+        self.checkBox_print = QtGui.QCheckBox(self.tab_informationflow)
+        self.checkBox_print.setObjectName("checkBox_print")
+        self.checkBox_print.setText('Drucken aus dem Browser erlauben')
+        
         self.radioButton_proxy_none = QtGui.QRadioButton(self.groupBox_proxy)
         self.radioButton_proxy_none.setObjectName("radioButton_proxy_none")
         
@@ -207,6 +212,7 @@ class Ui_MainWindow(object):
         
         self.checkBox_lockproxy = QtGui.QCheckBox(self.tab_network)
         self.checkBox_lockproxy.setObjectName("checkBox_lockproxy")
+
        
         self.groupBox_DNS = QtGui.QGroupBox(self.tab_network)
         self.groupBox_DNS.setObjectName("groupBox_DNS")
@@ -267,7 +273,7 @@ class Ui_MainWindow(object):
         self.groupBox_DNS.setTitle(QtGui.QApplication.translate("MainWindow", "DNS Einstellungen", None, QtGui.QApplication.UnicodeUTF8))
         self.radioButton_dns_windows.setText(QtGui.QApplication.translate("MainWindow", "Einstellungen von Windows übernehmen", None, QtGui.QApplication.UnicodeUTF8))
         self.radioButton_dns_static.setText(QtGui.QApplication.translate("MainWindow", "Statische Adressen (komma-getrennt)", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_dns_static_adress.setText(QtGui.QApplication.translate("MainWindow", "8.8.8.8,8.8.4.4", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_dns_static_adress.setText(QtGui.QApplication.translate("MainWindow", None, None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_network), QtGui.QApplication.translate("MainWindow", "Network", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_save.setText(QtGui.QApplication.translate("MainWindow", "Speichern", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_reset.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
