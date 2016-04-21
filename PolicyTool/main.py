@@ -132,6 +132,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.checkBox_print.setCheckState(QtCore.Qt.CheckState.Checked)
 
+        #Policy: Proxy
         if parsed_bitbox_tomini.get("proxy", "proxy") == "automatic":
             self.radioButton_proxy_automatic.toggle()
             self.lineEdit_proxy_automatic_url.setText(parsed_bitbox_tomini.get("proxy", "url"))
@@ -139,6 +140,8 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.radioButton_proxy_static.toggle()
             self.lineEdit_proxy_static_ip.setText(parsed_bitbox_tomini.get("proxy", "address"))
             self.lineEdit_proxy_static_prefix.setText(parsed_bitbox_tomini.get("proxy", "port"))
+        else:
+            self.radioButton_proxy_none.toggle()
 
         if parsed_bitbox_tomini.get("proxy", "lock") == "true":
             self.checkBox_lockproxy.setCheckState(QtCore.Qt.CheckState.Checked)
@@ -231,14 +234,15 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if result == QtGui.QMessageBox.Yes:
                 bitbox_cfgfile = open("{}\\{}\\{}".format(bitboxinstalldir,
-                    'SetupData', 'UserConfig.ini'), 'w')
+                    'SetupData', 'UserConfig.policy'), 'w')
                 parser.write(bitbox_cfgfile)
                 bitbox_cfgfile.close()
                 QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
                         QtGui.QMessageBox.StandardButton)
         except IOError as e:
+            print e
             result = QtGui.QMessageBox.critical(self, "Fehler",
-                    "Die Konfiguration konnte nicht gespeichert werden!", QtGui.QMessageBox.Ok)
+                    "{}".format(e), QtGui.QMessageBox.Ok)
             if result == QtGui.QMessageBox.Ok:
                 self.set_bitbox_current_settings()
 
