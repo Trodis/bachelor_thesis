@@ -161,8 +161,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     @QtCore.Slot()
     def save_config(self):
         bitboxinstalldir = self.get_bitbox_install_path()
-        bitbox_cfgfile = open("{}\\{}\\{}".format(bitboxinstalldir,
-            'SetupData', 'UserConfig.ini'), 'w')
+        
         parser = SafeConfigParser()
         parser.add_section('informationflow')
         if self.radioButton_persistency_all.isChecked():
@@ -226,8 +225,24 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             parser.set('network', 'dns', 'dhcp')
 
-        parser.write(bitbox_cfgfile)
-        bitbox_cfgfile.close()
+        try:
+            result = QtGui.QMessageBox.question(self, "Speichern",\
+                        "Sind Sie sicher, dass Sie speichern möchten?",\
+                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if result == QtGui.QMessageBox.Yes:
+                bitbox_cfgfile = open("{}\\{}\\{}".format(bitboxinstalldir,
+                    'SetupData', 'UserConfig.ini'), 'w')
+                parser.write(bitbox_cfgfile)
+                bitbox_cfgfile.close()
+                QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
+                        QtGui.QMessageBox.StandardButton)
+        except IOError as e:
+            result = QtGui.QMessageBox.critical(self, "Fehler",
+                    "Die Konfiguration konnte nicht gespeichert werden!", QtGui.QMessageBox.Ok)
+            if result == QtGui.QMessageBox.Ok:
+                self.set_bitbox_current_settings()
+
+
 
     @QtCore.Slot()
     def reset_options(self):
