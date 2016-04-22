@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import platform
-from _winreg import OpenKey, QueryValueEx, HKEY_LOCAL_MACHINE
+from _winreg import OpenKey, QueryValue, QueryValueEx, SetValueEx, REG_SZ, HKEY_LOCAL_MACHINE
 from ConfigParser import SafeConfigParser
 from PySide import QtCore, QtGui
 from gui import Ui_MainWindow
@@ -24,16 +24,17 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def set_registry_path(self):
         if platform.machine() == "AMD64":
             self.bitboxreg_main = "SOFTWARE\Wow6432Node\Sirrix AG\BitBox"
-            self.bitboxreg_guesttohost_texttohost = \
-                    "\informationFlows\GuestToHost\permissions\\textToHost\\1"
-            self.bitboxreg_guesttohost_download = \
-                    "\informationFlows\GuestToHost\permissions\download\\1"
-            self.bitboxreg_guesttohost_print = \
-                    "\informationFlows\GuestToHost\permissions\print\\1"
+            self.bitboxreg_guesttohost_texttohost = "{}{}".format(self.bitboxreg_main, 
+                    "\informationFlows\GuestToHost\permissions\\textToHost\\1")
+            self.bitboxreg_guesttohost_download = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\GuestToHost\permissions\download\\1")
+            self.bitboxreg_guesttohost_print = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\GuestToHost\permissions\print\\1")
 
-            self.bitboxreg_hosttoguest_texttoguest = \
-                    "\informationFlows\HostToGuest\permissions\\textToGuest\\1"
-            self.bitboxreg_hosttoguest_upload = "\informationFlows\HostToGuest\permissions\upload\\1"
+            self.bitboxreg_hosttoguest_texttoguest = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\HostToGuest\permissions\\textToGuest\\1")
+            self.bitboxreg_hosttoguest_upload = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\HostToGuest\permissions\upload\\1")
         else:
             #TODO: Need to check on x86 Windows how the reg path is
             pass
@@ -44,17 +45,24 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             return QueryValueEx(key, 'installDir')[0]
         except WindowsError as e:
             #TODO: Logger would be better!
-            result = QtGui.QMessageBox.critical(self, "Fehler",
-                    "BitBox Installation wurde nicht gefunden!", QtGui.QMessageBox.Ok)
+            result = QtGui.QMessageBox.critical(self, "Registry Fehler",
+                    "{}".format(e), QtGui.QMessageBox.Ok)
             if result == QtGui.QMessageBox.Ok:
                 sys.exit(0)
 
-    def save_bitbox_setting(self):
-        pass
-
-    def get_bitbox_setting_value(self, setting):
+    def set_registry_value(self, subkey, value):
         try:
-            key = OpenKey(HKEY_LOCAL_MACHINE, "{}{}".format(self.bitboxreg_main, setting))
+            key = OpenKey(HKEY_LOCAL_MACHINE, subkey)
+            SetValueEx(key, "type", None, REG_SZ, value)
+        except WindowsError as e:
+            result = QtGui.QMessageBox.critical(self, "Registry Fehler",
+                    "{}".format(e), QtGui.QMessageBox.Ok)
+            if result == QtGui.QMessageBox.Ok:
+                sys.exit(0)
+
+    def get_bitbox_setting_value(self, subkey):
+        try:
+            key = OpenKey(HKEY_LOCAL_MACHINE, subkey)
             return QueryValueEx(key, 'type')[0]
         except WindowsError as e:
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
@@ -99,7 +107,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.comboBox_clipboard_hosttoguest.setCurrentIndex(0)
 
-        #Upload hos to guest
+        #Upload host to guest
         if bitboxsetting_hosttoguest_upload == "allow":
             self.comboBox_upload.setCurrentIndex(2)
         elif bitboxsetting_hosttoguest_upload == "askUser":
@@ -154,7 +162,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.radioButton_dns_windows.toggle()
          
     def create_connects(self):
-        self.pushButton_save.clicked.connect(self.save_config)
+        self.pushButton_save.clicked.connect(self.save_configfile)
         self.pushButton_reset.clicked.connect(self.reset_options)
     
     """
@@ -162,7 +170,13 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     die Ausführung der Slots.
     """
     @QtCore.Slot()
-    def save_config(self):
+    def write_bitbox_registry_config(self):
+        if self.radioButton_persistency_all.isChecked():
+            pass
+
+
+    @QtCore.Slot()
+    def save_configfile(self):
         bitboxinstalldir = self.get_bitbox_install_path()
         
         parser = SafeConfigParser()
