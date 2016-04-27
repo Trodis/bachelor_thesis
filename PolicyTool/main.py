@@ -343,7 +343,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         
         if self.radioButton_proxy_automatic.isChecked():
             parser.set('network', 'proxy', 'automatic')
-            parser.set('network', 'proxy', self.lineEdit_proxy_automatic_url.text())
+            parser.set('network', 'url', self.lineEdit_proxy_automatic_url.text())
         elif self.radioButton_proxy_static.isChecked():
             parser.set('network', 'proxy', 'static')
             parser.set('network', 'address', self.lineEdit_proxy_static_ip.text())
@@ -369,6 +369,8 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     policy_file.close()
                     QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
                         QtGui.QMessageBox.StandardButton)
+                else:
+                    QtGui.QMessageBox.information(self, "Speichern", "Abgebrochen!")
             else:
                 result = QtGui.QMessageBox.question(self, "Speichern",\
                             u"Sind Sie sicher, dass Sie speichern möchten?",\

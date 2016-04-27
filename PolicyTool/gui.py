@@ -145,7 +145,7 @@ class Ui_MainWindow(object):
 
     def createComponents(self):
         self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
-            "Sirrix AG - Browser in the Box | Security Policy Manager", None,
+            "Security Policy Manager", None,
             QtGui.QApplication.UnicodeUTF8))
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.resize(531, 629)
