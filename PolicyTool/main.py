@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 import platform
-from _winreg import OpenKey, QueryValue, QueryValueEx, SetValueEx, REG_SZ, HKEY_LOCAL_MACHINE
+from _winreg import OpenKey, QueryValue, QueryValueEx, SetValueEx, REG_SZ, KEY_ALL_ACCESS,\
+        HKEY_LOCAL_MACHINE
 from ConfigParser import SafeConfigParser
 from PySide import QtCore, QtGui
 from gui import Ui_MainWindow
@@ -17,9 +19,20 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self, *args):
         QtGui.QMainWindow.__init__(self, *args)
         Ui_MainWindow.__init__(self, self)
+        self.mode = QtGui.QApplication.arguments()[2]
+        if self.mode == "admin":
+            self.create_load_button()
+            self.create_connects_admin_mode()
+        else:
+            self.create_connects_user_mode()
         self.set_registry_path()
         self.set_bitbox_current_settings()
-        self.create_connects()
+
+    def create_load_button(self):
+        self.pushButton_load = QtGui.QPushButton(self.centralwidget)
+        self.pushButton_load.setObjectName("pushButton_load")
+        self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_load)
+        self.pushButton_load.setText("Laden")
 
     def set_registry_path(self):
         if platform.machine() == "AMD64":
@@ -52,7 +65,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
     def set_registry_value(self, subkey, value):
         try:
-            key = OpenKey(HKEY_LOCAL_MACHINE, subkey)
+            key = OpenKey(HKEY_LOCAL_MACHINE, subkey,0, KEY_ALL_ACCESS)
             SetValueEx(key, "type", None, REG_SZ, value)
         except WindowsError as e:
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
@@ -75,6 +88,78 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         bitboxinstalldir = self.get_bitbox_install_path() 
         parser.read("{}\\{}".format(bitboxinstalldir, 'BitBoxTOM.ini'))
         return parser
+
+    def set_bitbox_loaded_settings(self, filename):
+        parser = SafeConfigParser()
+        parser.read(filename)
+        for section in parser.sections():
+            for k,v in parser.items(section):
+                if section == "network":
+                    for k,v in parser.items(section):
+                        if k == "proxy":
+                            if v == "static":
+                                self.radioButton_proxy_static.setChecked(True)
+                                self.lineEdit_proxy_static_ip.setText(parser.get(section, "address"))
+                                self.lineEdit_proxy_static_prefix.setText(parser.get(section, "port"))
+                            elif v == "automatic":
+                                self.radioButton_proxy_automatic.setChecked(True)
+                                self.lineEdit_proxy_automatic_url.setText(parser.get(section, "url"))
+                            else:
+                                self.radioButton_proxy_none.setChecked(True)
+                        elif k == "dns":
+                            if v == "dhcp":
+                                self.radioButton_dns_windows.setChecked(True)
+                            elif v == "static":
+                                self.radioButton_dns_static.setChecked(True)
+                                self.lineEdit_dns_static_adress.setText(parser.get(section, "servers"))
+                        elif k == "lock":
+                            if v == "true":
+                                self.checkBox_lockproxy.setChecked(True)
+                            else:
+                                self.checkBox_lockproxy.setChecked(False)
+                else:
+                    if k == "printing":
+                        if v == "true":
+                            self.checkBox_print.setChecked(True)
+                        else:
+                            self.checkBox_print.setChecked(False)
+                    elif k == "download":
+                        if v == "allow":
+                            self.comboBox_download.setCurrentIndex(3)
+                        elif v == "askUser":
+                            self.comboBox_download.setCurrentIndex(1)
+                        elif v == "checkVirus":
+                            self.comboBox_download.setCurrentIndex(2)
+                        else:
+                            self.comboBox_download.setCurrentIndex(0)
+                    elif k == "upload":
+                        if v == "allow":
+                            self.comboBox_upload.setCurrentIndex(2)
+                        elif v == "askUser":
+                            self.comboBox_upload.setCurrentIndex(1)
+                        else:
+                            self.comboBox_upload.setCurrentIndex(0)
+                    elif k == "persistentdata":
+                        if v == "all":
+                            self.radioButton_persistency_all.setChecked(True)
+                        elif v == "bookmarksonly":
+                            self.radioButton_persistency_bookmarksonly.setChecked(True)
+                        else:
+                            self.radioButton_persistency_deny.setChecked(True)
+                    elif k == "clipboard_guesttohost":
+                        if v == "allow":
+                            self.comboBox_clipboard_guesttohost.setCurrentIndex(2)
+                        elif v == "askUser":
+                            self.comboBox_clipboard_guesttohost.setCurrentIndex(1)
+                        else:
+                            self.comboBox_clipboard_guesttohost.setCurrentIndex(0)
+                    elif k == "clipboard_hosttoguest":
+                        if v == "allow":
+                            self.comboBox_clipboard_hosttoguest.setCurrentIndex(2)
+                        elif v == "askUser":
+                            self.comboBox_clipboard_hosttoguest.setCurrentIndex(1)
+                        else:
+                            self.comboBox_clipboard_hosttoguest.setCurrentIndex(0)
 
     def set_bitbox_current_settings(self):
         bitboxsetting_guesttohost_texttohost = \
@@ -161,22 +246,53 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.radioButton_dns_windows.toggle()
          
-    def create_connects(self):
-        self.pushButton_save.clicked.connect(self.save_configfile)
+    def create_connects_user_mode(self):
+        self.pushButton_save.clicked.connect(self.save_config)
         self.pushButton_reset.clicked.connect(self.reset_options)
     
-    """
-    Slots optimieren die Speichverwaltung von Qt und beschleunigt somit
-    die Ausführung der Slots.
-    """
-    @QtCore.Slot()
-    def write_bitbox_registry_config(self):
-        if self.radioButton_persistency_all.isChecked():
-            pass
+    def create_connects_admin_mode(self):
+        self.pushButton_save.clicked.connect(self.save_config)
+        self.pushButton_reset.clicked.connect(self.reset_options)
+        self.pushButton_load.clicked.connect(self.load_config)
+
+    def save_bitbix_config_to_registry(self):
+        if self.checkBox_print.isChecked():
+            self.set_registry_value(self.bitboxreg_guesttohost_print, "allow")
+        else:
+            self.set_registry_value(self.bitboxreg_guesttohost_print, "deny")
+
+        if self.comboBox_download.currentIndex() == 0:
+            self.set_registry_value(self.bitboxreg_guesttohost_download, "deny")
+        elif self.comboBox_download.currentIndex() == 1:
+            self.set_registry_value(self.bitboxreg_guesttohost_download, "askUser")
+        elif self.comboBox_download.currentIndex() == 2:
+            self.set_registry_value(self.bitboxreg_guesttohost_download, "checkVirus")
+        else:
+            self.set_registry_value(self.bitboxreg_guesttohost_download, "allow")
+
+        if self.comboBox_upload.currentIndex() == 0:
+            self.set_registry_value(self.bitboxreg_hosttoguest_upload, "deny")
+        elif self.comboBox_upload.currentIndex() == 1:
+            self.set_registry_value(self.bitboxreg_hosttoguest_upload, "askUser")
+        else:
+            self.set_registry_value(self.bitboxreg_hosttoguest_upload, "allow")
+
+        if self.comboBox_clipboard_guesttohost.currentIndex() == 0:
+            self.set_registry_value(self.bitboxreg_guesttohost_texttohost, "deny")
+        elif self.comboBox_clipboard_guesttohost.currentIndex() == 1:
+            self.set_registry_value(self.bitboxreg_guesttohost_texttohost, "askUser")
+        else:
+            self.set_registry_value(self.bitboxreg_guesttohost_texttohost, "allow")
+
+        if self.comboBox_clipboard_hosttoguest.currentIndex() == 0:
+            self.set_registry_value(self.bitboxreg_hosttoguest_texttoguest, "deny")
+        elif self.comboBox_clipboard_hosttoguest.currentIndex() == 1:
+            self.set_registry_value(self.bitboxreg_hosttoguest_texttoguest, "askUser")
+        else:
+            self.set_registry_value(self.bitboxreg_hosttoguest_texttoguest, "allow")
 
 
-    @QtCore.Slot()
-    def save_configfile(self):
+    def save_bitbox_config_to_ini(self):
         bitboxinstalldir = self.get_bitbox_install_path()
         
         parser = SafeConfigParser()
@@ -234,7 +350,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             parser.set('network', 'port', self.lineEdit_proxy_static_prefix.text())
         else:
             parser.set('network', 'proxy', 'none')
-        parser.set('network', 'lock', str(self.checkBox_lockproxy.isChecked()))
+        parser.set('network', 'lock', str(self.checkBox_lockproxy.isChecked()).lower())
 
         if self.radioButton_dns_static.isChecked():
             parser.set('network', 'dns', 'static')
@@ -243,14 +359,25 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             parser.set('network', 'dns', 'dhcp')
 
         try:
-            result = QtGui.QMessageBox.question(self, "Speichern",\
-                        "Sind Sie sicher, dass Sie speichern möchten?",\
-                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if result == QtGui.QMessageBox.Yes:
-                bitbox_cfgfile = open("{}\\{}\\{}".format(bitboxinstalldir,
-                    'SetupData', 'UserConfig.policy'), 'w')
-                parser.write(bitbox_cfgfile)
-                bitbox_cfgfile.close()
+            if self.mode == "admin":
+                dest = QtGui.QFileDialog.getSaveFileName(self, u"Datei Speichern", None,\
+                        u"Policies (*.policy)")
+                if all(dest):
+                    filename = unicode(dest[0])
+                    policy_file = open(filename, 'w')
+                    parser.write(policy_file)
+                    policy_file.close()
+                    QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
+                        QtGui.QMessageBox.StandardButton)
+            else:
+                result = QtGui.QMessageBox.question(self, "Speichern",\
+                            u"Sind Sie sicher, dass Sie speichern möchten?",\
+                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                if result == QtGui.QMessageBox.Yes:
+                    bitbox_cfgfile = open("{}\\{}\\{}".format(bitboxinstalldir,
+                        'SetupData', 'UserConfig.policy'), 'w')
+                    parser.write(bitbox_cfgfile)
+                    bitbox_cfgfile.close()
                 QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
                         QtGui.QMessageBox.StandardButton)
         except IOError as e:
@@ -260,7 +387,26 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             if result == QtGui.QMessageBox.Ok:
                 self.set_bitbox_current_settings()
 
+    """
+    Slots optimieren die Speichverwaltung von Qt und beschleunigt somit
+    die Ausführung der Slots.
+    """
+    @QtCore.Slot()
+    def save_config(self):
+        self.save_bitbix_config_to_registry()
+        self.save_bitbox_config_to_ini()
 
+    @QtCore.Slot()
+    def load_config(self):
+        filename = QtGui.QFileDialog.getOpenFileName(self, u"Policy öffnen", None,\
+                u"Policy(*.policy)")
+        if all(filename):
+            filename = unicode(filename[0])
+            QtGui.QMessageBox.information(self, u"Laden", u"Policy wird geladen...")
+            self.set_bitbox_loaded_settings(filename)
+            
+        else:
+            QtGui.QMessageBox.information(self, u"Laden", u"Abgebrochen!")
 
     @QtCore.Slot()
     def reset_options(self):
