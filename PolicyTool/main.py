@@ -177,11 +177,11 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         """Policy: Persitent Data"""
         if parsed_bitbox_tomini.get('user', 'persistentdata') == 'all':
-            self.radioButton_persistency_all.toggle()
+            self.radioButton_persistency_all.setChecked(True)
         elif parsed_bitbox_tomini.get('user', 'persistentdata') == 'bookmarksonly':
-            self.radioButton_persistency_bookmarksonly.toggle()
+            self.radioButton_persistency_bookmarksonly.setChecked(True)
         else:
-            self.radioButton_proxy_none.toggle()
+            self.radioButton_proxy_none.setChecked(True)
 
         """Policy: Host to Guest"""
         #Clipboard host to guest
@@ -221,9 +221,9 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         #Guest to host Printing
         if bitboxsetting_guesttohost_print == "allow":
-            self.checkBox_print.setCheckState(QtCore.Qt.CheckState.Checked)
+            self.checkBox_print.setChecked(True)
         else:
-            self.checkBox_print.setCheckState(QtCore.Qt.CheckState.Checked)
+            self.checkBox_print.setChecked(False)
 
         #Policy: Proxy
         if parsed_bitbox_tomini.get("proxy", "proxy") == "automatic":
@@ -254,8 +254,8 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.pushButton_save.clicked.connect(self.save_config)
         self.pushButton_reset.clicked.connect(self.reset_options)
         self.pushButton_load.clicked.connect(self.load_config)
-
-    def save_bitbix_config_to_registry(self):
+    
+    def write_bitbox_config_to_registry(self):
         if self.checkBox_print.isChecked():
             self.set_registry_value(self.bitboxreg_guesttohost_print, "allow")
         else:
@@ -291,6 +291,18 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.set_registry_value(self.bitboxreg_hosttoguest_texttoguest, "allow")
 
+
+    def save_bitbix_config_to_registry(self):
+        result = QtGui.QMessageBox.question(self, "Speichern",\
+                u"Sind Sie sicher, dass Sie speichern möchten?",\
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if result is QtGui.QMessageBox.Yes:
+            self.write_bitbox_config_to_registry()
+            QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
+            QtGui.QMessageBox.StandardButton)
+        else:
+            QtGui.QMessageBox.information(self, "Speichern", "Abgebrochen!",
+                    QtGui.QMessageBox.Ok)
 
     def save_bitbox_config_to_ini(self):
         bitboxinstalldir = self.get_bitbox_install_path()
@@ -359,29 +371,17 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             parser.set('network', 'dns', 'dhcp')
 
         try:
-            if self.mode == "admin":
-                dest = QtGui.QFileDialog.getSaveFileName(self, u"Datei Speichern", None,\
-                        u"Policies (*.policy)")
-                if all(dest):
-                    filename = unicode(dest[0])
-                    policy_file = open(filename, 'w')
-                    parser.write(policy_file)
-                    policy_file.close()
-                    QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
-                        QtGui.QMessageBox.StandardButton)
-                else:
-                    QtGui.QMessageBox.information(self, "Speichern", "Abgebrochen!")
-            else:
-                result = QtGui.QMessageBox.question(self, "Speichern",\
-                            u"Sind Sie sicher, dass Sie speichern möchten?",\
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                if result == QtGui.QMessageBox.Yes:
-                    bitbox_cfgfile = open("{}\\{}\\{}".format(bitboxinstalldir,
-                        'SetupData', 'UserConfig.policy'), 'w')
-                    parser.write(bitbox_cfgfile)
-                    bitbox_cfgfile.close()
+            dest = QtGui.QFileDialog.getSaveFileName(self, u"Datei Speichern", None,\
+                    u"Policies (*.policy)")
+            if all(dest):
+                filename = unicode(dest[0])
+                policy_file = open(filename, 'w')
+                parser.write(policy_file)
+                policy_file.close()
                 QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
-                        QtGui.QMessageBox.StandardButton)
+                    QtGui.QMessageBox.StandardButton)
+            else:
+                    QtGui.QMessageBox.information(self, "Speichern", "Abgebrochen!")
         except IOError as e:
             print e
             result = QtGui.QMessageBox.critical(self, "Fehler",
@@ -395,8 +395,10 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     """
     @QtCore.Slot()
     def save_config(self):
-        self.save_bitbix_config_to_registry()
-        self.save_bitbox_config_to_ini()
+        if self.mode == "user":
+            self.save_bitbix_config_to_registry()
+        else:
+            self.save_bitbox_config_to_ini()
 
     @QtCore.Slot()
     def load_config(self):
