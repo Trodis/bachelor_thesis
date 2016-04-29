@@ -61,7 +61,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
                     "{}".format(e), QtGui.QMessageBox.Ok)
             if result == QtGui.QMessageBox.Ok:
-                sys.exit(0)
+                return 
 
     def set_registry_value(self, subkey, value):
         try:
@@ -69,9 +69,10 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             SetValueEx(key, "type", None, REG_SZ, value)
         except WindowsError as e:
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
-                    "{}".format(e), QtGui.QMessageBox.Ok)
+                    u"Registry speicher fehgeschlagen für: {1}\n{0}".format(e, subkey),
+                    QtGui.QMessageBox.Ok)
             if result == QtGui.QMessageBox.Ok:
-                sys.exit(0)
+                pass
 
     def get_bitbox_setting_value(self, subkey):
         try:
@@ -81,9 +82,9 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
                     "Auf die Registry konnte nicht zugegriffen werden", QtGui.QMessageBox.Ok)
             if result == QtGui.QMessageBox.Ok:
-                sys.exit(0)
+                pass 
 
-    def get_bitbox_tomini_settings(self):
+    def get_bitbox_tomini(self):
         parser = SafeConfigParser()
         bitboxinstalldir = self.get_bitbox_install_path() 
         parser.read("{}\\{}".format(bitboxinstalldir, 'BitBoxTOM.ini'))
@@ -173,7 +174,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         bitboxsetting_hosttoguest_upload = \
                 self.get_bitbox_setting_value(self.bitboxreg_hosttoguest_upload)
 
-        parsed_bitbox_tomini = self.get_bitbox_tomini_settings()
+        parsed_bitbox_tomini = self.get_bitbox_tomini()
 
         """Policy: Persitent Data"""
         if parsed_bitbox_tomini.get('user', 'persistentdata') == 'all':
@@ -225,12 +226,13 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.checkBox_print.setChecked(False)
 
+        """Network Policy"""
         #Policy: Proxy
         if parsed_bitbox_tomini.get("proxy", "proxy") == "automatic":
-            self.radioButton_proxy_automatic.toggle()
+            self.radioButton_proxy_automatic.setChecked(True)
             self.lineEdit_proxy_automatic_url.setText(parsed_bitbox_tomini.get("proxy", "url"))
         elif parsed_bitbox_tomini.get("proxy", "proxy") == "manual":
-            self.radioButton_proxy_static.toggle()
+            self.radioButton_proxy_static.setChecked(True)
             self.lineEdit_proxy_static_ip.setText(parsed_bitbox_tomini.get("proxy", "address"))
             self.lineEdit_proxy_static_prefix.setText(parsed_bitbox_tomini.get("proxy", "port"))
         else:
@@ -241,10 +243,10 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         #Policy: DNS
         if parsed_bitbox_tomini.get("dns", "type") == "static":
-            self.radioButton_dns_static.toggle()
+            self.radioButton_dns_static.setChecked(True)
             self.lineEdit_dns_static_adress.setText(parsed_bitbox_tomini.get("dns", "servers"))
         else:
-            self.radioButton_dns_windows.toggle()
+            self.radioButton_dns_windows.setChecked(True)
          
     def create_connects_user_mode(self):
         self.pushButton_save.clicked.connect(self.save_config)
@@ -291,15 +293,56 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.set_registry_value(self.bitboxreg_hosttoguest_texttoguest, "allow")
 
+    def write_bitbox_config_to_tomini(self):
+        parser = self.get_bitbox_tomini()
+        parser.sections()
+        
+        if self.radioButton_proxy_static.isChecked():
+            parser.set("proxy", "proxy", "manual")
+            parser.set("proxy", "address", self.lineEdit_proxy_static_ip.text())
+            parser.set("proxy", "port", self.lineEdit_proxy_static_prefix.text())
+            parser.set("proxy", "url", "")
+        elif self.radioButton_proxy_automatic.isChecked():
+            parser.set("proxy", "proxy", "automatic")
+            parser.set("proxy", "url", self.lineEdit_proxy_automatic_url.text())
+            parser.set("proxy", "address", "")
+            parser.set("proxy", "port", "")
+        elif self.radioButton_proxy_none.isChecked():
+            parser.set("proxy", "proxy", "none")
+            parser.set("proxy", "address", "")
+            parser.set("proxy", "port", "")
+            parser.set("proxy", "url", "")
+        if self.radioButton_dns_windows.isChecked():
+            parser.set("dns", "type", "dhcp")
+            parser.set("dns", "servers", "8.8.8.8,8.8.4.4")
+        elif self.radioButton_dns_static.isChecked():
+            parser.set("dns", "type", "static")
+            parser.set("dns", "servers", self.lineEdit_dns_static_adress.text())
+        
+        if self.checkBox_lockproxy.isChecked():
+            parser.set("proxy", "lock", "true")
+        else:
+            parser.set("proxy", "lock", "false")
 
-    def save_bitbix_config_to_registry(self):
+        bitboxtomini_path = "{}\\{}".format(self.get_bitbox_install_path(), "BitBoxTOM.ini")
+        with open(bitboxtomini_path, "w") as tomini:
+            parser.write(tomini)
+            
+
+    def save_bitbox_config_to_registry_and_tomini(self):
         result = QtGui.QMessageBox.question(self, "Speichern",\
                 u"Sind Sie sicher, dass Sie speichern möchten?",\
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
         if result is QtGui.QMessageBox.Yes:
-            self.write_bitbox_config_to_registry()
-            QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
-            QtGui.QMessageBox.StandardButton)
+            try:
+                self.write_bitbox_config_to_registry()
+                self.write_bitbox_config_to_tomini()
+                QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
+                        QtGui.QMessageBox.Ok)
+            except (WindowsError, IOError) as e:
+                QtGui.QMessageBox.critical(self, "Speichern fehlgeschlagen", "{}".format(e),
+                        QtGui.QMessageBox.Ok)
+            
         else:
             QtGui.QMessageBox.information(self, "Speichern", "Abgebrochen!",
                     QtGui.QMessageBox.Ok)
@@ -396,7 +439,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     @QtCore.Slot()
     def save_config(self):
         if self.mode == "user":
-            self.save_bitbix_config_to_registry()
+            self.save_bitbox_config_to_registry_and_tomini()
         else:
             self.save_bitbox_config_to_ini()
 
