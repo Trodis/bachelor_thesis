@@ -2,6 +2,7 @@
 import os
 import sys
 import platform
+import socket
 from _winreg import OpenKey, QueryValue, QueryValueEx, SetValueEx, REG_SZ, KEY_ALL_ACCESS,\
         HKEY_LOCAL_MACHINE
 from ConfigParser import SafeConfigParser
@@ -20,13 +21,25 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         QtGui.QMainWindow.__init__(self, *args)
         Ui_MainWindow.__init__(self, self)
         self.mode = QtGui.QApplication.arguments()[2]
+        self.create_connects_for_proxy_editing()
         if self.mode == "admin":
+            self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
+                "Security Policy Manager - Administrator Mode", None, QtGui.QApplication.UnicodeUTF8))
             self.create_load_button()
             self.create_connects_admin_mode()
         else:
+            self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
+                "Security Policy Manager - User Mode", None, QtGui.QApplication.UnicodeUTF8))
+            self.create_reset_button()
             self.create_connects_user_mode()
         self.set_registry_path()
         self.set_bitbox_current_settings()
+
+    def create_reset_button(self):
+        self.pushButton_reset = QtGui.QPushButton(self.centralwidget)
+        self.pushButton_reset.setObjectName("pushButton_reset")
+        self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_reset)
+        self.pushButton_reset.setText("Reset")
 
     def create_load_button(self):
         self.pushButton_load = QtGui.QPushButton(self.centralwidget)
@@ -57,11 +70,9 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             key = OpenKey(HKEY_LOCAL_MACHINE, self.bitboxreg_main)
             return QueryValueEx(key, 'installDir')[0]
         except WindowsError as e:
-            #TODO: Logger would be better!
+            #TODO: Logging maybe??
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
                     "{}".format(e), QtGui.QMessageBox.Ok)
-            if result == QtGui.QMessageBox.Ok:
-                return 
 
     def set_registry_value(self, subkey, value):
         try:
@@ -69,10 +80,8 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             SetValueEx(key, "type", None, REG_SZ, value)
         except WindowsError as e:
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
-                    u"Registry speicher fehgeschlagen für: {1}\n{0}".format(e, subkey),
+                    u"Registry speichern fehgeschlagen für: {1}\n{0}".format(e, subkey),
                     QtGui.QMessageBox.Ok)
-            if result == QtGui.QMessageBox.Ok:
-                pass
 
     def get_bitbox_setting_value(self, subkey):
         try:
@@ -80,9 +89,8 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             return QueryValueEx(key, 'type')[0]
         except WindowsError as e:
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
-                    "Auf die Registry konnte nicht zugegriffen werden", QtGui.QMessageBox.Ok)
-            if result == QtGui.QMessageBox.Ok:
-                pass 
+                    u"Registry lesen fehgeschlagen für: {1}\n{0}".format(e, subkey),
+                    QtGui.QMessageBox.Ok)
 
     def get_bitbox_tomini(self):
         parser = SafeConfigParser()
@@ -231,12 +239,18 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if parsed_bitbox_tomini.get("proxy", "proxy") == "automatic":
             self.radioButton_proxy_automatic.setChecked(True)
             self.lineEdit_proxy_automatic_url.setText(parsed_bitbox_tomini.get("proxy", "url"))
+            self.lineEdit_proxy_static_ip.setDisabled(True)
+            self.lineEdit_proxy_static_prefix.setDisabled(True)
         elif parsed_bitbox_tomini.get("proxy", "proxy") == "manual":
             self.radioButton_proxy_static.setChecked(True)
             self.lineEdit_proxy_static_ip.setText(parsed_bitbox_tomini.get("proxy", "address"))
             self.lineEdit_proxy_static_prefix.setText(parsed_bitbox_tomini.get("proxy", "port"))
+            self.lineEdit_proxy_automatic_url.setDisabled(True)
         else:
-            self.radioButton_proxy_none.toggle()
+            self.radioButton_proxy_none.setChecked(True)
+            self.lineEdit_proxy_static_ip.setDisabled(True)
+            self.lineEdit_proxy_static_prefix.setDisabled(True)
+            self.lineEdit_proxy_automatic_url.setDisabled(True)
 
         if parsed_bitbox_tomini.get("proxy", "lock") == "true":
             self.checkBox_lockproxy.setCheckState(QtCore.Qt.CheckState.Checked)
@@ -247,15 +261,9 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.lineEdit_dns_static_adress.setText(parsed_bitbox_tomini.get("dns", "servers"))
         else:
             self.radioButton_dns_windows.setChecked(True)
+            self.lineEdit_dns_static_adress.setDisabled(True)
          
-    def create_connects_user_mode(self):
-        self.pushButton_save.clicked.connect(self.save_config)
-        self.pushButton_reset.clicked.connect(self.reset_options)
     
-    def create_connects_admin_mode(self):
-        self.pushButton_save.clicked.connect(self.save_config)
-        self.pushButton_reset.clicked.connect(self.reset_options)
-        self.pushButton_load.clicked.connect(self.load_config)
     
     def write_bitbox_config_to_registry(self):
         if self.checkBox_print.isChecked():
@@ -336,9 +344,21 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if result is QtGui.QMessageBox.Yes:
             try:
                 self.write_bitbox_config_to_registry()
-                self.write_bitbox_config_to_tomini()
-                QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
-                        QtGui.QMessageBox.Ok)
+                if self.verify_ip(self.lineEdit_proxy_static_ip.text()):
+                    self.write_bitbox_config_to_tomini()
+                    QtGui.QMessageBox.information(self, "Speichern",
+                        "Konfiguration wurde gespeichert!", QtGui.QMessageBox.Ok)
+                else:
+                    result = QtGui.QMessageBox.question(self, "Statischer Proxy",\
+                    u"Die eingegebene IP Addresse ist ungültig, möchten Sie dennoch speichern?",\
+                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                    if result is QtGui.QMessageBox.No:
+                        self.lineEdit_proxy_static_ip.setFocus()
+                    else:
+                        self.write_bitbox_config_to_tomini()
+                        QtGui.QMessageBox.information(self, "Speichern",\
+                                "Konfiguration wurde gespeichert!", QtGui.QMessageBox.Ok)
+
             except (WindowsError, IOError) as e:
                 QtGui.QMessageBox.critical(self, "Speichern fehlgeschlagen", "{}".format(e),
                         QtGui.QMessageBox.Ok)
@@ -431,6 +451,55 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     "{}".format(e), QtGui.QMessageBox.Ok)
             if result == QtGui.QMessageBox.Ok:
                 self.set_bitbox_current_settings()
+
+    def change_static_proxy_inputfield_state(self):
+        if self.radioButton_proxy_static.isChecked():
+            self.lineEdit_proxy_static_ip.setDisabled(False)
+            self.lineEdit_proxy_static_prefix.setDisabled(False)
+        else:
+            self.lineEdit_proxy_static_ip.setDisabled(True)
+            self.lineEdit_proxy_static_prefix.setDisabled(True)
+
+    def change_automatic_proxy_inputfield_state(self):
+        if self.radioButton_proxy_automatic.isChecked():
+            self.lineEdit_proxy_automatic_url.setDisabled(False)
+        else:
+            self.lineEdit_proxy_automatic_url.setDisabled(True)
+
+    def change_dns_servers_inputfield_state(self):
+        if self.radioButton_dns_windows.isChecked():
+            self.lineEdit_dns_static_adress.setDisabled(True)
+        else:
+            self.lineEdit_dns_static_adress.setDisabled(False)
+    
+    def verify_ip(self, ip):
+        try:
+            socket.inet_aton(ip)
+            return True
+        except:
+            return False
+
+    def verify_proxy_static_ip(self):
+        if not self.verify_ip(self.lineEdit_proxy_static_ip.text()):
+            result = QtGui.QMessageBox.question(self, "Statischer Proxy",\
+                u"Die eingegebene IP Addresse ist ungültig, möchten Sie dennoch speichern?",\
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if result is QtGui.QMessageBox.No:
+                self.lineEdit_proxy_static_ip.setFocus()
+
+        
+    def create_connects_for_proxy_editing(self):
+        self.radioButton_proxy_static.toggled.connect(self.change_static_proxy_inputfield_state)
+        self.radioButton_proxy_automatic.toggled.connect(self.change_automatic_proxy_inputfield_state) 
+        self.radioButton_dns_windows.toggled.connect(self.change_dns_servers_inputfield_state)
+
+    def create_connects_user_mode(self):
+        self.pushButton_save.clicked.connect(self.save_config)
+        self.pushButton_reset.clicked.connect(self.reset_options)
+    
+    def create_connects_admin_mode(self):
+        self.pushButton_save.clicked.connect(self.save_config)
+        self.pushButton_load.clicked.connect(self.load_config)
 
     """
     Slots optimieren die Speichverwaltung von Qt und beschleunigt somit

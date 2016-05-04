@@ -140,13 +140,9 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_save_reset_buttons.addItem(spacerItem2)
         self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_save)
-        self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_reset)
         self.verticalLayout_4.addLayout(self.horizontalLayout_save_reset_buttons)
 
     def createComponents(self):
-        self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
-            "Security Policy Manager", None,
-            QtGui.QApplication.UnicodeUTF8))
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.resize(531, 629)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
@@ -199,11 +195,13 @@ class Ui_MainWindow(object):
         self.radioButton_proxy_static.setObjectName("radioButton_proxy_static")
         self.lineEdit_proxy_static_ip = QtGui.QLineEdit(self.groupBox_proxy)
         self.lineEdit_proxy_static_ip.setObjectName("lineEdit_proxy_static_ip")
+        self.lineEdit_proxy_static_ip.setInputMask("000.000.000.000")
         self.label_slash_ip_prefix = QtGui.QLabel(self.groupBox_proxy)
         self.label_slash_ip_prefix.setObjectName("label_slash_ip_prefix")
         self.lineEdit_proxy_static_prefix = QtGui.QLineEdit(self.groupBox_proxy)
         self.lineEdit_proxy_static_prefix.setMaximumSize(QtCore.QSize(50, 16777215))
         self.lineEdit_proxy_static_prefix.setObjectName("lineEdit_proxy_static_prefix")
+        self.lineEdit_proxy_static_prefix.setMaxLength(65536)
         
         self.radioButton_proxy_automatic = QtGui.QRadioButton(self.groupBox_proxy)
         self.radioButton_proxy_automatic.setObjectName("radioButton_proxy_automatic")
@@ -227,8 +225,6 @@ class Ui_MainWindow(object):
         
         self.pushButton_save = QtGui.QPushButton(self.centralwidget)
         self.pushButton_save.setObjectName("pushButton_save")
-        self.pushButton_reset = QtGui.QPushButton(self.centralwidget)
-        self.pushButton_reset.setObjectName("pushButton_reset")
         
         self.MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(self.MainWindow)
@@ -276,5 +272,4 @@ class Ui_MainWindow(object):
         self.lineEdit_dns_static_adress.setText(QtGui.QApplication.translate("MainWindow", None, None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_network), QtGui.QApplication.translate("MainWindow", "Network", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_save.setText(QtGui.QApplication.translate("MainWindow", "Speichern", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_reset.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
 
