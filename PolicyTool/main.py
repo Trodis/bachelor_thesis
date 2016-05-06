@@ -22,10 +22,13 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self, self)
         self.mode = QtGui.QApplication.arguments()[2]
         self.create_connects_for_proxy_editing()
+        self.set_registry_path()
         if self.mode == "admin":
             if self.bitbox_installed():
                 self.set_bitbox_current_settings()
-            self.set_registry_path()
+            else:
+                pass
+                #TODO: Default Settings
             self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
             "Security Policy Manager - Administrator Mode", None, QtGui.QApplication.UnicodeUTF8))
             self.create_load_button()
@@ -36,7 +39,6 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     "Security Policy Manager - User Mode", None, QtGui.QApplication.UnicodeUTF8))
                 self.create_reset_button()
                 self.create_connects_user_mode()
-                self.set_registry_path()
                 self.set_bitbox_current_settings()  
             else:
                 QtGui.QMessageBox.critical(self, "Registry Fehler",
@@ -376,10 +378,6 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             except (WindowsError, IOError) as e:
                 QtGui.QMessageBox.critical(self, "Speichern fehlgeschlagen", "{}".format(e),
                         QtGui.QMessageBox.Ok)
-            
-        else:
-            QtGui.QMessageBox.information(self, "Speichern", "Abgebrochen!",
-                    QtGui.QMessageBox.Ok)
 
     def save_bitbox_config_to_ini(self):
         parser = SafeConfigParser()
@@ -469,8 +467,6 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 policy_file.close()
                 QtGui.QMessageBox.information(self, "Speichern", "Konfiguration wurde gespeichert!",
                     QtGui.QMessageBox.StandardButton)
-            else:
-                    QtGui.QMessageBox.information(self, "Speichern", "Abgebrochen!")
         except IOError as e:
             print e
             result = QtGui.QMessageBox.critical(self, "Fehler",
@@ -543,11 +539,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 u"Policy(*.policy)")
         if all(filename):
             filename = unicode(filename[0])
-            QtGui.QMessageBox.information(self, u"Laden", u"Policy wird geladen...")
             self.set_bitbox_loaded_settings(filename)
-            
-        else:
-            QtGui.QMessageBox.information(self, u"Laden", u"Abgebrochen!")
 
     @QtCore.Slot()
     def reset_options(self):
