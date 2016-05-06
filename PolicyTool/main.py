@@ -23,17 +23,25 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.mode = QtGui.QApplication.arguments()[2]
         self.create_connects_for_proxy_editing()
         if self.mode == "admin":
+            if self.bitbox_installed():
+                self.set_bitbox_current_settings()
+            self.set_registry_path()
             self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
-                "Security Policy Manager - Administrator Mode", None, QtGui.QApplication.UnicodeUTF8))
+            "Security Policy Manager - Administrator Mode", None, QtGui.QApplication.UnicodeUTF8))
             self.create_load_button()
             self.create_connects_admin_mode()
         else:
-            self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
-                "Security Policy Manager - User Mode", None, QtGui.QApplication.UnicodeUTF8))
-            self.create_reset_button()
-            self.create_connects_user_mode()
-        self.set_registry_path()
-        self.set_bitbox_current_settings()
+            if self.bitbox_installed():
+                self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
+                    "Security Policy Manager - User Mode", None, QtGui.QApplication.UnicodeUTF8))
+                self.create_reset_button()
+                self.create_connects_user_mode()
+                self.set_registry_path()
+                self.set_bitbox_current_settings()  
+            else:
+                QtGui.QMessageBox.critical(self, "Registry Fehler",
+                        u"BitBox Installation nicht gefunden!", QtGui.QMessageBox.Ok)
+                sys.exit(0)
 
     def create_reset_button(self):
         self.pushButton_reset = QtGui.QPushButton(self.centralwidget)
@@ -50,21 +58,27 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def set_registry_path(self):
         if platform.machine() == "AMD64":
             self.bitboxreg_main = "SOFTWARE\Wow6432Node\Sirrix AG\BitBox"
-            self.bitboxreg_guesttohost_texttohost = "{}{}".format(self.bitboxreg_main, 
-                    "\informationFlows\GuestToHost\permissions\\textToHost\\1")
-            self.bitboxreg_guesttohost_download = "{}{}".format(self.bitboxreg_main,
-                    "\informationFlows\GuestToHost\permissions\download\\1")
-            self.bitboxreg_guesttohost_print = "{}{}".format(self.bitboxreg_main,
-                    "\informationFlows\GuestToHost\permissions\print\\1")
-
-            self.bitboxreg_hosttoguest_texttoguest = "{}{}".format(self.bitboxreg_main,
-                    "\informationFlows\HostToGuest\permissions\\textToGuest\\1")
-            self.bitboxreg_hosttoguest_upload = "{}{}".format(self.bitboxreg_main,
-                    "\informationFlows\HostToGuest\permissions\upload\\1")
         else:
-            #TODO: Need to check on x86 Windows how the reg path is
-            pass
+            self.bitboxreg_main = "SOFTWARE\Sirrix AG\BitBox"
+
+        self.bitboxreg_guesttohost_texttohost = "{}{}".format(self.bitboxreg_main, 
+                    "\informationFlows\GuestToHost\permissions\\textToHost\\1")
+        self.bitboxreg_guesttohost_download = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\GuestToHost\permissions\download\\1")
+        self.bitboxreg_guesttohost_print = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\GuestToHost\permissions\print\\1")
+        self.bitboxreg_hosttoguest_texttoguest = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\HostToGuest\permissions\\textToGuest\\1")
+        self.bitboxreg_hosttoguest_upload = "{}{}".format(self.bitboxreg_main,
+                    "\informationFlows\HostToGuest\permissions\upload\\1")
     
+    def bitbox_installed(self):
+        try:
+            self.get_bitbox_install_path()
+            return True
+        except:
+            return False
+
     def get_bitbox_install_path(self):
         try:
             key = OpenKey(HKEY_LOCAL_MACHINE, self.bitboxreg_main)
@@ -72,7 +86,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         except WindowsError as e:
             #TODO: Logging maybe??
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
-                    "{}".format(e), QtGui.QMessageBox.Ok)
+                    "BitBox Installation wurde nicht gefunden:{}".format(e), QtGui.QMessageBox.Ok)
 
     def set_registry_value(self, subkey, value):
         try:
@@ -368,8 +382,6 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     QtGui.QMessageBox.Ok)
 
     def save_bitbox_config_to_ini(self):
-        bitboxinstalldir = self.get_bitbox_install_path()
-        
         parser = SafeConfigParser()
         parser.add_section('informationflow')
         if self.radioButton_persistency_all.isChecked():
@@ -420,9 +432,20 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             parser.set('network', 'proxy', 'automatic')
             parser.set('network', 'url', self.lineEdit_proxy_automatic_url.text())
         elif self.radioButton_proxy_static.isChecked():
-            parser.set('network', 'proxy', 'static')
-            parser.set('network', 'address', self.lineEdit_proxy_static_ip.text())
-            parser.set('network', 'port', self.lineEdit_proxy_static_prefix.text())
+            if self.verify_ip(self.lineEdit_proxy_static_ip.text()):
+                parser.set('network', 'proxy', 'static')
+                parser.set('network', 'address', self.lineEdit_proxy_static_ip.text())
+                parser.set('network', 'port', self.lineEdit_proxy_static_prefix.text())
+            else:
+                result = QtGui.QMessageBox.question(self, "Statischer Proxy",\
+                u"Die eingegebene IP Addresse ist ungültig, möchten Sie dennoch speichern?",\
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                if result is QtGui.QMessageBox.Yes:
+                    parser.set('network', 'proxy', 'static')
+                    parser.set('network', 'address', self.lineEdit_proxy_static_ip.text())
+                    parser.set('network', 'port', self.lineEdit_proxy_static_prefix.text())
+                else:
+                    return
         else:
             parser.set('network', 'proxy', 'none')
         parser.set('network', 'lock', str(self.checkBox_lockproxy.isChecked()).lower())
@@ -433,6 +456,9 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             parser.set('network', 'dns', 'dhcp')
 
+        self.save_policy_file(parser)
+                    
+    def save_policy_file(self, parser):
         try:
             dest = QtGui.QFileDialog.getSaveFileName(self, u"Datei Speichern", None,\
                     u"Policies (*.policy)")
@@ -486,7 +512,6 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if result is QtGui.QMessageBox.No:
                 self.lineEdit_proxy_static_ip.setFocus()
-
         
     def create_connects_for_proxy_editing(self):
         self.radioButton_proxy_static.toggled.connect(self.change_static_proxy_inputfield_state)
