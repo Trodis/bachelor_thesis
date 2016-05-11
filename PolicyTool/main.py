@@ -24,25 +24,22 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.create_connects_for_proxy_editing()
         self.set_registry_path()
         if self.mode == "admin":
-            if self.bitbox_installed():
+            if self.get_bitbox_install_path():
                 self.set_bitbox_current_settings()
             else:
-                pass
-                #TODO: Default Settings
+                self.set_default_policy()
             self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
             "Security Policy Manager - Administrator Mode", None, QtGui.QApplication.UnicodeUTF8))
             self.create_load_button()
             self.create_connects_admin_mode()
         else:
-            if self.bitbox_installed():
+            if self.get_bitbox_install_path():
                 self.MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow",
                     "Security Policy Manager - User Mode", None, QtGui.QApplication.UnicodeUTF8))
                 self.create_reset_button()
                 self.create_connects_user_mode()
                 self.set_bitbox_current_settings()  
             else:
-                QtGui.QMessageBox.critical(self, "Registry Fehler",
-                        u"BitBox Installation nicht gefunden!", QtGui.QMessageBox.Ok)
                 sys.exit(0)
 
     def create_reset_button(self):
@@ -74,21 +71,17 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.bitboxreg_hosttoguest_upload = "{}{}".format(self.bitboxreg_main,
                     "\informationFlows\HostToGuest\permissions\upload\\1")
     
-    def bitbox_installed(self):
-        try:
-            self.get_bitbox_install_path()
-            return True
-        except:
-            return False
-
     def get_bitbox_install_path(self):
         try:
             key = OpenKey(HKEY_LOCAL_MACHINE, self.bitboxreg_main)
             return QueryValueEx(key, 'installDir')[0]
         except WindowsError as e:
             #TODO: Logging maybe??
-            result = QtGui.QMessageBox.critical(self, "Registry Fehler",
+            if self.mode == 'user':
+                result = QtGui.QMessageBox.critical(self, "Registry Fehler",
                     "BitBox Installation wurde nicht gefunden:{}".format(e), QtGui.QMessageBox.Ok)
+            else:
+                return None
 
     def set_registry_value(self, subkey, value):
         try:
@@ -113,6 +106,21 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         bitboxinstalldir = self.get_bitbox_install_path() 
         parser.read("{}\\{}".format(bitboxinstalldir, 'BitBoxTOM.ini'))
         return parser
+
+    def set_default_policy(self):
+        self.comboBox_clipboard_guesttohost.setCurrentIndex(2)
+        self.comboBox_clipboard_hosttoguest.setCurrentIndex(2)
+        self.comboBox_upload.setCurrentIndex(2)
+        self.comboBox_download.setCurrentIndex(3)
+        self.checkBox_print.setChecked(True)
+        self.radioButton_persistency_all.setChecked(True)
+
+        self.radioButton_proxy_none.setChecked(True)
+        self.radioButton_dns_windows.setChecked(True)
+
+        self.change_automatic_proxy_inputfield_state()
+        self.change_dns_servers_inputfield_state()
+        self.change_static_proxy_inputfield_state()
 
     def set_bitbox_loaded_settings(self, filename):
         parser = SafeConfigParser()
@@ -279,7 +287,6 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.radioButton_dns_windows.setChecked(True)
             self.lineEdit_dns_static_adress.setDisabled(True)
          
-    
     
     def write_bitbox_config_to_registry(self):
         if self.checkBox_print.isChecked():
