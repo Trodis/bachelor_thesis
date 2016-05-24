@@ -367,7 +367,8 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if result is QtGui.QMessageBox.Yes:
             try:
                 self.write_bitbox_config_to_registry()
-                if self.verify_ip(self.lineEdit_proxy_static_ip.text()):
+                valid_ip = self.verify_ip(self.lineEdit_proxy_static_ip.text())
+                if valid_ip:
                     self.write_bitbox_config_to_tomini()
                     QtGui.QMessageBox.information(self, "Speichern",
                         "Konfiguration wurde gespeichert!", QtGui.QMessageBox.Ok)
@@ -502,20 +503,15 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.lineEdit_dns_static_adress.setDisabled(False)
     
     def verify_ip(self, ip):
-        try:
-            socket.inet_aton(ip)
+        if self.radioButton_proxy_static.isChecked():
+            try:
+                socket.inet_aton(ip)
+                return True
+            except:
+                return False
+        else:
             return True
-        except:
-            return False
 
-    def verify_proxy_static_ip(self):
-        if not self.verify_ip(self.lineEdit_proxy_static_ip.text()):
-            result = QtGui.QMessageBox.question(self, "Statischer Proxy",\
-                u"Die eingegebene IP Addresse ist ungültig, möchten Sie dennoch speichern?",\
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if result is QtGui.QMessageBox.No:
-                self.lineEdit_proxy_static_ip.setFocus()
-        
     def create_connects_for_proxy_editing(self):
         self.radioButton_proxy_static.toggled.connect(self.change_static_proxy_inputfield_state)
         self.radioButton_proxy_automatic.toggled.connect(self.change_automatic_proxy_inputfield_state) 
