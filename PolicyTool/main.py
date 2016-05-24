@@ -42,17 +42,20 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             else:
                 sys.exit(0)
 
+
     def create_reset_button(self):
         self.pushButton_reset = QtGui.QPushButton(self.centralwidget)
         self.pushButton_reset.setObjectName("pushButton_reset")
         self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_reset)
         self.pushButton_reset.setText("Reset")
 
+
     def create_load_button(self):
         self.pushButton_load = QtGui.QPushButton(self.centralwidget)
         self.pushButton_load.setObjectName("pushButton_load")
         self.horizontalLayout_save_reset_buttons.addWidget(self.pushButton_load)
         self.pushButton_load.setText("Laden")
+
 
     def set_registry_path(self):
         if platform.machine() == "AMD64":
@@ -70,6 +73,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     "\informationFlows\HostToGuest\permissions\\textToGuest\\1")
         self.bitboxreg_hosttoguest_upload = "{}{}".format(self.bitboxreg_main,
                     "\informationFlows\HostToGuest\permissions\upload\\1")
+
     
     def get_bitbox_install_path(self):
         try:
@@ -83,6 +87,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             else:
                 return None
 
+
     def set_registry_value(self, subkey, value):
         try:
             key = OpenKey(HKEY_LOCAL_MACHINE, subkey,0, KEY_ALL_ACCESS)
@@ -91,6 +96,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             result = QtGui.QMessageBox.critical(self, "Registry Fehler",
                     u"Registry speichern fehgeschlagen für: {1}\n{0}".format(e, subkey),
                     QtGui.QMessageBox.Ok)
+
 
     def get_bitbox_setting_value(self, subkey):
         try:
@@ -101,11 +107,13 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     u"Registry lesen fehgeschlagen für: {1}\n{0}".format(e, subkey),
                     QtGui.QMessageBox.Ok)
 
+
     def get_bitbox_tomini(self):
         parser = SafeConfigParser()
         bitboxinstalldir = self.get_bitbox_install_path() 
         parser.read("{}\\{}".format(bitboxinstalldir, 'BitBoxTOM.ini'))
         return parser
+
 
     def set_default_policy(self):
         self.comboBox_clipboard_guesttohost.setCurrentIndex(2)
@@ -121,6 +129,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.change_automatic_proxy_inputfield_state()
         self.change_dns_servers_inputfield_state()
         self.change_static_proxy_inputfield_state()
+
 
     def set_bitbox_loaded_settings(self, filename):
         parser = SafeConfigParser()
@@ -193,6 +202,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
                             self.comboBox_clipboard_hosttoguest.setCurrentIndex(1)
                         else:
                             self.comboBox_clipboard_hosttoguest.setCurrentIndex(0)
+
 
     def set_bitbox_current_settings(self):
         bitboxsetting_guesttohost_texttohost = \
@@ -324,10 +334,20 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.set_registry_value(self.bitboxreg_hosttoguest_texttoguest, "allow")
 
+
     def write_bitbox_config_to_tomini(self):
         parser = self.get_bitbox_tomini()
         parser.sections()
+
+        #Persistency settings
+        if self.radioButton_persistency_all.isChecked():
+            parser.set("user", "persistentdata", "all")
+        elif self.radioButton_persistency_bookmarksonly.isChecked():
+            parser.set("user", "persistentdata", "bookmarksonly")
+        else:
+            parser.set("user", "persistentdata", "none")
         
+        #Proxy settings
         if self.radioButton_proxy_static.isChecked():
             parser.set("proxy", "proxy", "manual")
             parser.set("proxy", "address", self.lineEdit_proxy_static_ip.text())
@@ -349,7 +369,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         elif self.radioButton_dns_static.isChecked():
             parser.set("dns", "type", "static")
             parser.set("dns", "servers", self.lineEdit_dns_static_adress.text())
-        
+       
         if self.checkBox_lockproxy.isChecked():
             parser.set("proxy", "lock", "true")
         else:
@@ -386,6 +406,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             except (WindowsError, IOError) as e:
                 QtGui.QMessageBox.critical(self, "Speichern fehlgeschlagen", "{}".format(e),
                         QtGui.QMessageBox.Ok)
+
 
     def save_bitbox_config_to_ini(self):
         parser = SafeConfigParser()
@@ -464,6 +485,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         self.save_policy_file(parser)
                     
+
     def save_policy_file(self, parser):
         try:
             dest = QtGui.QFileDialog.getSaveFileName(self, u"Datei Speichern", None,\
@@ -482,6 +504,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             if result == QtGui.QMessageBox.Ok:
                 self.set_bitbox_current_settings()
 
+
     def change_static_proxy_inputfield_state(self):
         if self.radioButton_proxy_static.isChecked():
             self.lineEdit_proxy_static_ip.setDisabled(False)
@@ -490,11 +513,13 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.lineEdit_proxy_static_ip.setDisabled(True)
             self.lineEdit_proxy_static_prefix.setDisabled(True)
 
+
     def change_automatic_proxy_inputfield_state(self):
         if self.radioButton_proxy_automatic.isChecked():
             self.lineEdit_proxy_automatic_url.setDisabled(False)
         else:
             self.lineEdit_proxy_automatic_url.setDisabled(True)
+
 
     def change_dns_servers_inputfield_state(self):
         if self.radioButton_dns_windows.isChecked():
@@ -502,6 +527,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.lineEdit_dns_static_adress.setDisabled(False)
     
+
     def verify_ip(self, ip):
         if self.radioButton_proxy_static.isChecked():
             try:
@@ -512,15 +538,18 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             return True
 
+
     def create_connects_for_proxy_editing(self):
         self.radioButton_proxy_static.toggled.connect(self.change_static_proxy_inputfield_state)
         self.radioButton_proxy_automatic.toggled.connect(self.change_automatic_proxy_inputfield_state) 
         self.radioButton_dns_windows.toggled.connect(self.change_dns_servers_inputfield_state)
 
+
     def create_connects_user_mode(self):
         self.pushButton_save.clicked.connect(self.save_config)
         self.pushButton_reset.clicked.connect(self.reset_options)
     
+
     def create_connects_admin_mode(self):
         self.pushButton_save.clicked.connect(self.save_config)
         self.pushButton_load.clicked.connect(self.load_config)
@@ -536,6 +565,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.save_bitbox_config_to_ini()
 
+
     @QtCore.Slot()
     def load_config(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, u"Policy öffnen", None,\
@@ -543,6 +573,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if all(filename):
             filename = unicode(filename[0])
             self.set_bitbox_loaded_settings(filename)
+
 
     @QtCore.Slot()
     def reset_options(self):
