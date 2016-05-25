@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import locale
+CODEC = locale.getpreferredencoding()
 import os
 import sys
 import platform
@@ -111,7 +113,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def get_bitbox_tomini(self):
         parser = SafeConfigParser()
         bitboxinstalldir = self.get_bitbox_install_path() 
-        parser.read("{}\\{}".format(bitboxinstalldir, 'BitBoxTOM.ini'))
+        parser.read("{}\\{}".format(bitboxinstalldir.encode(CODEC), 'BitBoxTOM.ini'))
         return parser
 
 
@@ -375,7 +377,7 @@ class GUIMainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             parser.set("proxy", "lock", "false")
 
-        bitboxtomini_path = "{}\\{}".format(self.get_bitbox_install_path(), "BitBoxTOM.ini")
+        bitboxtomini_path = "{}\\{}".format(self.get_bitbox_install_path().encode(CODEC), "BitBoxTOM.ini")
         with open(bitboxtomini_path, "w") as tomini:
             parser.write(tomini)
             
