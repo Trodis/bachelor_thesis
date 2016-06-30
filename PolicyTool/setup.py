@@ -10,5 +10,5 @@ setup(
     version = "0.1",
     description = "Policy Configuration Tool for BitBox Standalone",
     options = {'build_exe': {'excludes':excludes,'packages':packages,'include_files':includefiles}},
-    executables = [Executable("main.py")]
+    executables = [Executable("policytool.py")]
 )
